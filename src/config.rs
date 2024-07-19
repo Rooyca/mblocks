@@ -8,7 +8,7 @@ use crate::blocks::cpu::cpu_usage;
 //use crate::blocks::datetime::current_date;
 //use crate::blocks::datetime::current_time;
 use crate::blocks::memory::memory_used;
-use crate::blocks::battery::battery_info;
+use crate::blocks::battery::battery_info_noty;
 
 pub const SEPARATOR: &str = " │ ";
 pub const PREFIX: &str = " ";
@@ -22,8 +22,14 @@ pub const BLOCKS: &[Block] = &[
     //     suffix: "",
     // },
     Block {
+        kind: Once,
+        command: Shell(&["/home/ryc/.scripts/reminders.sh"]),
+        prefix: " ",
+        suffix: "",
+    },
+    Block {
         kind: Periodic(60),
-        command: Function(battery_info),
+        command: Function(battery_info_noty),
         prefix: " ",
         suffix: "",
     },
