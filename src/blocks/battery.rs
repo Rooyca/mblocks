@@ -2,8 +2,8 @@ use std::error::Error;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::fs::{self, File};
 use std::path::Path;
+use std::process::Command;
 use battery::{Manager, State};
-use notify_rust::Notification;
 
 struct BatteryInfo {
     state: State,
@@ -33,15 +33,23 @@ impl Display for BatteryInfo {
     }
 }
 
-fn send_notification(title: &str, message: &str, urgency: notify_rust::Urgency, file_path: &str) {
+fn send_notification(title: &str, message: &str, file_path: &str) {
     if !Path::new(file_path).exists() {
-        Notification::new()
-            .summary(title)
-            .body(message)
-            .urgency(urgency)
-            .show()
-            .expect("Failed to send notification");
-        File::create(file_path).expect("Failed to create notification file");
+        match Command::new("notify-send")
+            .arg(title)
+            .arg(message)
+            .status()
+        {
+            Ok(status) if status.success() => {
+                File::create(file_path).expect("Failed to create notification file");
+            }
+            Ok(status) => {
+                eprintln!("Failed to send notification: {:?}", status);
+            }
+            Err(e) => {
+                eprintln!("Failed to execute notify-send: {:?}", e);
+            }
+        }
     }
 }
 
@@ -57,18 +65,17 @@ fn handle_notifications(battery_info: &BatteryInfo) {
 
     if status == State::Discharging {
         if percentage < 11 {
-            send_notification("Battery Low", "Battery below 10%", notify_rust::Urgency::Critical, "/tmp/battery_warning");
+            send_notification("Battery Low", "Battery below 10%", "/tmp/battery_warning");
         } else if percentage < 21 {
-            send_notification("Battery Low", "Battery below 20%", notify_rust::Urgency::Normal, "/tmp/battery_notification");
+            send_notification("Battery Low", "Battery below 20%", "/tmp/battery_notification");
         } else {
             remove_notification_files();
         }
     } else {
-        remove_notification_files();
         if percentage >= 98 {
-            send_notification("Battery Full", "Battery at 98%", notify_rust::Urgency::Normal, "/tmp/battery_full");
+            send_notification("Battery Full", "Battery at 98%", "/tmp/battery_full");
         } else {
-            let _ = fs::remove_file("/tmp/battery_full");
+            remove_notification_files();
         }
     }
 }

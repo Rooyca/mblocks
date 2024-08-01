@@ -21,18 +21,12 @@ pub const BLOCKS: &[Block] = &[
     //     prefix: " ",
     //     suffix: "",
     // },
-    Block {
-        kind: Once,
-        command: Shell(&["/home/ryc/.scripts/reminders.sh"]),
-        prefix: " ",
-        suffix: "",
-    },
-    Block {
-        kind: Periodic(60),
-        command: Function(battery_info_noty),
-        prefix: " ",
-        suffix: "",
-    },
+    //Block {
+    //    kind: Once,
+    //    command: Shell(&["/home/ryc/.scripts/reminders.sh"]),
+    //    prefix: " ",
+    //    suffix: "",
+    //},
     Block {
         kind: Periodic(2),
         command: Function(cpu_usage),
@@ -44,6 +38,12 @@ pub const BLOCKS: &[Block] = &[
         command: Function(memory_used),
         prefix: "󱞟 ",
         suffix: "G",
+    },
+    Block {
+        kind: Periodic(30),
+        command: Function(battery_info_noty),
+        prefix: "",
+        suffix: "",
     },
     Block {
         kind: Periodic(30),

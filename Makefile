@@ -1,6 +1,12 @@
-all:
-	@echo "Building..."
-	cargo build --release
-	@echo "Installing..."
-	cp target/release/mblocks /home/$(shell basename $(USER))/.cargo/bin
-	@echo "Done! :)"
+prog :=xnixperms
+
+build:
+	cargo build $(release)
+
+install:
+	cp target/$(target)/$(prog) ~/bin/$(prog)-$(extension)
+
+all: build install
+ 
+help:
+	@echo "usage: make $(prog)"
